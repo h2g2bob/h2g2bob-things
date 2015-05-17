@@ -29,7 +29,8 @@ window.addEventListener("load", function(event) {
 });
 function draw(){
 	draw_lines(document.getElementById("path1"));
-	draw_curves(document.getElementById("path2"));
+	draw_normals(document.getElementById("path2"));
+	draw_bezier(document.getElementById("path3"));
 }
 
 function draw_lines(elem) {
@@ -47,7 +48,7 @@ function draw_lines(elem) {
 	elem.setAttribute("d", path_str.join(" "));
 }
 
-function draw_curves(elem) {
+function draw_normals(elem) {
 	var path_str = [];
 	var rad = 50;
 	if (g_coords.length < 2) {
@@ -59,18 +60,44 @@ function draw_curves(elem) {
 		} else if (i == g_coords.length-1) {
 			path_str.push("L " + g_coords[i].x + " " + g_coords[i].y);
 		} else {
-			/*
-			path_str.push("C");
-			path_str.push((g_coords[i].x - rad) + " " + (g_coords[i].y - rad));
-			path_str.push((g_coords[i].x + rad) + " " + (g_coords[i].y + rad));
-			path_str.push(g_coords[i].x + " " + g_coords[i].y);
-			*/
 			var theta_n = angle_normal(g_coords[i-1], g_coords[i], g_coords[i+1]);
 			var dx = rad *  Math.sin(theta_n);
 			var dy = rad *  Math.cos(theta_n);
 			path_str.push("L " + g_coords[i].x + " " + g_coords[i].y);
 			path_str.push("L " + (g_coords[i].x+dx) + " " + (g_coords[i].y+dy));
 			path_str.push("L " + g_coords[i].x + " " + g_coords[i].y);
+		}
+	}
+	elem.setAttribute("d", path_str.join(" "));
+}
+
+function draw_bezier(elem) {
+	/*
+	M point C c_right
+	c_left point C c_right 
+	c_left point
+	*/
+	var path_str = [];
+	var rad = 50;
+	if (g_coords.length < 2) {
+		return;
+	}
+	for (var i = 0; i < g_coords.length; ++i) {
+		if (i == 0) {
+			path_str.push("M " + g_coords[i].x + "," + g_coords[i].y);
+			path_str.push("C " + g_coords[i].x + "," + g_coords[i].y);
+		} else if (i == g_coords.length-1) {
+			path_str.push(g_coords[i].x + "," + g_coords[i].y);
+			path_str.push(g_coords[i].x + "," + g_coords[i].y);
+		} else {
+			var theta_n = angle_normal(g_coords[i-1], g_coords[i], g_coords[i+1]);
+			var dx = rad *  Math.sin(theta_n - Math.PI/2);
+			var dy = rad *  Math.cos(theta_n - Math.PI/2);
+			path_str.push((g_coords[i].x + dx) + "," + (g_coords[i].y + dx));
+			path_str.push(g_coords[i].x + "," + g_coords[i].y);
+			var dx = rad *  Math.sin(theta_n + Math.PI/2);
+			var dy = rad *  Math.cos(theta_n + Math.PI/2);
+			path_str.push("C " + (g_coords[i].x + dy) + "," + (g_coords[i].y + dy));
 		}
 	}
 	elem.setAttribute("d", path_str.join(" "));
@@ -86,12 +113,18 @@ function mod(blah, base) {
 }
 
 function angle_normal(a, b, c) {
-	var theta_a = mod(angle_btn(a, b), 2*Math.PI);
-	var theta_c = mod(angle_btn(c, b), 2*Math.PI);
-	if (theta_c + theta_a < 2*Math.PI) {
-		return (theta_a + theta_c) / 2.0;
+	var theta_a = mod(angle_btn(a, b), 2.0*Math.PI);
+	var theta_c = mod(angle_btn(c, b), 2.0*Math.PI);
+	return angle_normal_theta(theta_a, theta_c);
+}
+
+function angle_normal_theta(theta_a, theta_c) {
+	var theta_avg = mod((theta_a + theta_c) / 2.0, 2.0*Math.PI);
+
+	if (Math.abs(theta_a - theta_c) > Math.PI) {
+		return theta_avg+Math.PI;
 	} else {
-		return Math.PI + (theta_a + theta_c) / 2.0;
+		return theta_avg;
 	}
 }
 
@@ -111,7 +144,10 @@ function angle_btn(a, b) {
 
 /*
 function assert(x, v){
-	document.write("<div>" + x + "<br>" + eval(x) + " (" + v + ")</div>");
+	var ev = eval(x);
+	if (ev != v) {
+		document.write("<div>" + x + "<br>" + ev + " (" + v + ")</div>");
+	}
 }
 assert("(angle_btn({x: 100, y: 200}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 0)
 assert("(angle_btn({x: 200, y: 200}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 45)
@@ -121,13 +157,22 @@ assert("(angle_btn({x: 100, y: 0}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 3
 assert("(angle_btn({x: 0, y: 0}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 225)
 assert("(angle_btn({x: 0, y: 100}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 270)
 assert("(angle_btn({x: 0, y: 200}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 315)
+assert("angle_normal_theta(0,             0)             /2*Math.PI", 0)
+assert("angle_normal_theta(1/2*2*Math.PI, 0)             /2*Math.PI", 1/4)
+assert("angle_normal_theta(3/4*2*Math.PI, 0)             /2*Math.PI", 7/8)
+assert("angle_normal_theta(0,             1/2*2*Math.PI) /2*Math.PI", 1/4)
+assert("angle_normal_theta(0,             3/4*2*Math.PI) /2*Math.PI", 7/8)
+assert("angle_normal_theta(1/2*2*Math.PI, 1/2*2*Math.PI) /2*Math.PI", 1/2)
+assert("angle_normal_theta(3/4*2*Math.PI, 3/4*2*Math.PI) /2*Math.PI", 3/4)
+assert("angle_normal_theta(3/4*2*Math.PI, 1/2*2*Math.PI) /2*Math.PI", 5/8)
 */
 </script>
 </head>
 <body>
 	<svg id="svgarea" width="750px" height="500px" version="1.1" xmlns="http://www.w3.org/2000/svg" style="background: #003366">
 		<path id="path1" stroke="#cc7700" fill="transparent"/>
-		<path id="path2" stroke="#ffffff" fill="transparent"/>
+		<path id="path2" stroke="#ffcc77" fill="transparent"/>
+		<path id="path3" stroke="#ffffff" fill="transparent"/>
 	</svg>
 </body>
 </html>
