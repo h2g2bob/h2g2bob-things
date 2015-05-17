@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="application/javascript">
+/*
+    SVG Line Drawing Example
+    Copyright (C) 2015 David Batley
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+var g_coords = [];
+window.addEventListener("load", function(event) {
+	document.getElementById("svgarea").addEventListener("click", function(event) {
+		var bbox = event.currentTarget.getBoundingClientRect();
+		g_coords.push({ x : event.clientX - bbox.left, y : event.clientY - bbox.top });
+		draw();
+	});
+});
+function draw(){
+	draw_lines(document.getElementById("path1"));
+	draw_curves(document.getElementById("path2"));
+}
+
+function draw_lines(elem) {
+	var path_str = [];
+	if (g_coords.length < 2) {
+		return;
+	}
+	for (var i = 0; i < g_coords.length; ++i) {
+		if (i == 0) {
+			path_str.push("M " + g_coords[i].x + " " + g_coords[i].y);
+		} else {
+			path_str.push("L " + g_coords[i].x + " " + g_coords[i].y);
+		}
+	}
+	elem.setAttribute("d", path_str.join(" "));
+}
+
+function draw_curves(elem) {
+	var path_str = [];
+	var rad = 50;
+	if (g_coords.length < 2) {
+		return;
+	}
+	for (var i = 0; i < g_coords.length; ++i) {
+		if (i == 0) {
+			path_str.push("M " + g_coords[i].x + " " + g_coords[i].y);
+		} else if (i == g_coords.length-1) {
+			path_str.push("L " + g_coords[i].x + " " + g_coords[i].y);
+		} else {
+			path_str.push("C");
+			path_str.push((g_coords[i].x - rad) + " " + (g_coords[i].y - rad));
+			path_str.push((g_coords[i].x + rad) + " " + (g_coords[i].y + rad));
+			path_str.push(g_coords[i].x + " " + g_coords[i].y);
+alert(angle_btn(g_coords[i-1], g_coords[i]) * 180 / Math.PI)
+		}
+	}
+	elem.setAttribute("d", path_str.join(" "));
+}
+
+function angle_btn(coord1, coord2) {
+	var dx = coord2.x - coord1.x;
+	var dy = coord2.y - coord1.y;
+
+	if (Math.abs(dx) > Math.abs(dy)) {
+		return Math.PI/2 - Math.atan(dy / dx);
+	} else {
+		return Math.atan(dx / dy);
+	}
+}
+</script>
+</head>
+<body>
+	<svg id="svgarea" width="750px" height="500px" version="1.1" xmlns="http://www.w3.org/2000/svg" style="background: #003366">
+		<path id="path1" stroke="#cc7700" fill="transparent"/>
+		<path id="path2" stroke="#ffffff" fill="transparent"/>
+	</svg>
+</body>
+</html>
+
