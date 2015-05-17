@@ -59,26 +59,69 @@ function draw_curves(elem) {
 		} else if (i == g_coords.length-1) {
 			path_str.push("L " + g_coords[i].x + " " + g_coords[i].y);
 		} else {
+			/*
 			path_str.push("C");
 			path_str.push((g_coords[i].x - rad) + " " + (g_coords[i].y - rad));
 			path_str.push((g_coords[i].x + rad) + " " + (g_coords[i].y + rad));
 			path_str.push(g_coords[i].x + " " + g_coords[i].y);
-alert(angle_btn(g_coords[i-1], g_coords[i]) * 180 / Math.PI)
+			*/
+			var theta_n = angle_normal(g_coords[i-1], g_coords[i], g_coords[i+1]);
+			var dx = rad *  Math.sin(theta_n);
+			var dy = rad *  Math.cos(theta_n);
+			path_str.push("L " + g_coords[i].x + " " + g_coords[i].y);
+			path_str.push("L " + (g_coords[i].x+dx) + " " + (g_coords[i].y+dy));
+			path_str.push("L " + g_coords[i].x + " " + g_coords[i].y);
 		}
 	}
 	elem.setAttribute("d", path_str.join(" "));
 }
 
-function angle_btn(coord1, coord2) {
-	var dx = coord2.x - coord1.x;
-	var dy = coord2.y - coord1.y;
-
-	if (Math.abs(dx) > Math.abs(dy)) {
-		return Math.PI/2 - Math.atan(dy / dx);
+function mod(blah, base) {
+	var rtn = blah % base;
+	if (rtn < 0) {
+		return rtn + base;
 	} else {
-		return Math.atan(dx / dy);
+		return rtn;
 	}
 }
+
+function angle_normal(a, b, c) {
+	var theta_a = mod(angle_btn(a, b), 2*Math.PI);
+	var theta_c = mod(angle_btn(c, b), 2*Math.PI);
+	if (theta_c + theta_a < 2*Math.PI) {
+		return (theta_a + theta_c) / 2.0;
+	} else {
+		return Math.PI + (theta_a + theta_c) / 2.0;
+	}
+}
+
+function angle_btn(a, b) {
+	/*
+	Angle between BA and vertical, at B.
+	*/
+	var dx = a.x - b.x;
+	var dy = a.y - b.y;
+	var r = Math.sqrt(dx*dx + dy*dy); /* positive root */
+	if (dy > 0) {
+		return Math.asin(dx / r);
+	} else {
+		return Math.PI - Math.asin(dx / r);
+	}
+}
+
+/*
+function assert(x, v){
+	document.write("<div>" + x + "<br>" + eval(x) + " (" + v + ")</div>");
+}
+assert("(angle_btn({x: 100, y: 200}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 0)
+assert("(angle_btn({x: 200, y: 200}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 45)
+assert("(angle_btn({x: 200, y: 100}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 90)
+assert("(angle_btn({x: 200, y: 0}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 135)
+assert("(angle_btn({x: 100, y: 0}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 180)
+assert("(angle_btn({x: 0, y: 0}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 225)
+assert("(angle_btn({x: 0, y: 100}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 270)
+assert("(angle_btn({x: 0, y: 200}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 315)
+*/
 </script>
 </head>
 <body>
