@@ -33,6 +33,16 @@ function draw(){
 	draw_bezier(document.getElementById("path3"));
 }
 
+function debug_point(x, y, colour) {
+	var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+	circle.setAttribute("cx", x);
+	circle.setAttribute("cy", y);
+	circle.setAttribute("r", 5.0);
+	circle.setAttribute("stroke", colour || "#ffffff");
+	circle.setAttribute("fill", "none");
+	document.getElementById("svgarea").appendChild(circle);
+}
+
 function draw_lines(elem) {
 	var path_str = [];
 	if (g_coords.length < 2) {
@@ -91,13 +101,18 @@ function draw_bezier(elem) {
 			path_str.push(g_coords[i].x + "," + g_coords[i].y);
 		} else {
 			var theta_n = angle_normal(g_coords[i-1], g_coords[i], g_coords[i+1]);
+
 			var dx = rad *  Math.sin(theta_n - Math.PI/2);
 			var dy = rad *  Math.cos(theta_n - Math.PI/2);
-			path_str.push((g_coords[i].x + dx) + "," + (g_coords[i].y + dx));
+			path_str.push((g_coords[i].x + dx) + "," + (g_coords[i].y + dy));
+			debug_point((g_coords[i].x + dx), (g_coords[i].y + dy), "#ff0000");
+
 			path_str.push(g_coords[i].x + "," + g_coords[i].y);
+
 			var dx = rad *  Math.sin(theta_n + Math.PI/2);
 			var dy = rad *  Math.cos(theta_n + Math.PI/2);
-			path_str.push("C " + (g_coords[i].x + dy) + "," + (g_coords[i].y + dy));
+			path_str.push("C " + (g_coords[i].x + dx) + "," + (g_coords[i].y + dy));
+			debug_point((g_coords[i].x + dx), (g_coords[i].y + dy), "#00ff00");
 		}
 	}
 	elem.setAttribute("d", path_str.join(" "));
