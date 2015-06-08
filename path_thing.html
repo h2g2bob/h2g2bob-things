@@ -70,7 +70,7 @@ function draw_normals(elem) {
 		} else if (i == g_coords.length-1) {
 			path_str.push("L " + g_coords[i].x + " " + g_coords[i].y);
 		} else {
-			var theta_n = angle_normal(g_coords[i-1], g_coords[i], g_coords[i+1]);
+			var theta_n = angle(g_coords[i-1], g_coords[i], g_coords[i+1], angle_normal_theta);
 			var dx = rad *  Math.sin(theta_n);
 			var dy = rad *  Math.cos(theta_n);
 			path_str.push("L " + g_coords[i].x + " " + g_coords[i].y);
@@ -100,17 +100,17 @@ function draw_bezier(elem) {
 			path_str.push(g_coords[i].x + "," + g_coords[i].y);
 			path_str.push(g_coords[i].x + "," + g_coords[i].y);
 		} else {
-			var theta_n = angle_normal(g_coords[i-1], g_coords[i], g_coords[i+1]);
+			var theta_n = angle(g_coords[i-1], g_coords[i], g_coords[i+1], angle_average_theta);
 
-			var dx = rad *  Math.sin(theta_n - Math.PI/2);
-			var dy = rad *  Math.cos(theta_n - Math.PI/2);
+			var dx = rad *  Math.sin(theta_n + Math.PI/2);
+			var dy = rad *  Math.cos(theta_n + Math.PI/2);
 			path_str.push((g_coords[i].x + dx) + "," + (g_coords[i].y + dy));
 			debug_point((g_coords[i].x + dx), (g_coords[i].y + dy), "#ff0000");
 
 			path_str.push(g_coords[i].x + "," + g_coords[i].y);
 
-			var dx = rad *  Math.sin(theta_n + Math.PI/2);
-			var dy = rad *  Math.cos(theta_n + Math.PI/2);
+			var dx = rad *  Math.sin(theta_n - Math.PI/2);
+			var dy = rad *  Math.cos(theta_n - Math.PI/2);
 			path_str.push("C " + (g_coords[i].x + dx) + "," + (g_coords[i].y + dy));
 			debug_point((g_coords[i].x + dx), (g_coords[i].y + dy), "#00ff00");
 		}
@@ -127,10 +127,10 @@ function mod(blah, base) {
 	}
 }
 
-function angle_normal(a, b, c) {
+function angle(a, b, c, angle_func) {
 	var theta_a = mod(angle_btn(a, b), 2.0*Math.PI);
 	var theta_c = mod(angle_btn(c, b), 2.0*Math.PI);
-	return angle_normal_theta(theta_a, theta_c);
+	return angle_func(theta_a, theta_c);
 }
 
 function angle_normal_theta(theta_a, theta_c) {
@@ -141,6 +141,10 @@ function angle_normal_theta(theta_a, theta_c) {
 	} else {
 		return theta_avg;
 	}
+}
+
+function angle_average_theta(theta_a, theta_c) {
+	return mod((theta_a + theta_c) / 2.0, 2.0*Math.PI);
 }
 
 function angle_btn(a, b) {
