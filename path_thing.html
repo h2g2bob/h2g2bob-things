@@ -70,7 +70,7 @@ function draw_normals(elem) {
 		} else if (i == g_coords.length-1) {
 			path_str.push("L " + g_coords[i].x + " " + g_coords[i].y);
 		} else {
-			var theta_n = angle(g_coords[i-1], g_coords[i], g_coords[i+1], angle_normal_theta);
+			var theta_n = angle(g_coords[i-1], g_coords[i], g_coords[i+1], angle_concave_normal_theta);
 			var dx = rad *  Math.sin(theta_n);
 			var dy = rad *  Math.cos(theta_n);
 			path_str.push("L " + g_coords[i].x + " " + g_coords[i].y);
@@ -133,7 +133,7 @@ function angle(a, b, c, angle_func) {
 	return angle_func(theta_a, theta_c);
 }
 
-function angle_normal_theta(theta_a, theta_c) {
+function angle_concave_normal_theta(theta_a, theta_c) {
 	var theta_avg = mod((theta_a + theta_c) / 2.0, 2.0*Math.PI);
 
 	if (Math.abs(theta_a - theta_c) > Math.PI) {
@@ -176,14 +176,14 @@ assert("(angle_btn({x: 100, y: 0}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 3
 assert("(angle_btn({x: 0, y: 0}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 225)
 assert("(angle_btn({x: 0, y: 100}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 270)
 assert("(angle_btn({x: 0, y: 200}, {x: 100, y: 100}) / Math.PI * 180 + 3600) % 360", 315)
-assert("angle_normal_theta(0,             0)             /2*Math.PI", 0)
-assert("angle_normal_theta(1/2*2*Math.PI, 0)             /2*Math.PI", 1/4)
-assert("angle_normal_theta(3/4*2*Math.PI, 0)             /2*Math.PI", 7/8)
-assert("angle_normal_theta(0,             1/2*2*Math.PI) /2*Math.PI", 1/4)
-assert("angle_normal_theta(0,             3/4*2*Math.PI) /2*Math.PI", 7/8)
-assert("angle_normal_theta(1/2*2*Math.PI, 1/2*2*Math.PI) /2*Math.PI", 1/2)
-assert("angle_normal_theta(3/4*2*Math.PI, 3/4*2*Math.PI) /2*Math.PI", 3/4)
-assert("angle_normal_theta(3/4*2*Math.PI, 1/2*2*Math.PI) /2*Math.PI", 5/8)
+assert("angle_concave_normal_theta(0,             0)             /2*Math.PI", 0)
+assert("angle_concave_normal_theta(1/2*2*Math.PI, 0)             /2*Math.PI", 1/4)
+assert("angle_concave_normal_theta(3/4*2*Math.PI, 0)             /2*Math.PI", 7/8)
+assert("angle_concave_normal_theta(0,             1/2*2*Math.PI) /2*Math.PI", 1/4)
+assert("angle_concave_normal_theta(0,             3/4*2*Math.PI) /2*Math.PI", 7/8)
+assert("angle_concave_normal_theta(1/2*2*Math.PI, 1/2*2*Math.PI) /2*Math.PI", 1/2)
+assert("angle_concave_normal_theta(3/4*2*Math.PI, 3/4*2*Math.PI) /2*Math.PI", 3/4)
+assert("angle_concave_normal_theta(3/4*2*Math.PI, 1/2*2*Math.PI) /2*Math.PI", 5/8)
 */
 </script>
 </head>
