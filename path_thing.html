@@ -100,7 +100,7 @@ function draw_bezier(elem) {
 			path_str.push(g_coords[i].x + "," + g_coords[i].y);
 			path_str.push(g_coords[i].x + "," + g_coords[i].y);
 		} else {
-			var theta_n = angle(g_coords[i-1], g_coords[i], g_coords[i+1], angle_average_theta);
+			var theta_n = angle(g_coords[i-1], g_coords[i], g_coords[i+1], angle_same_direction_theta);
 
 			var dx = rad *  Math.sin(theta_n + Math.PI/2);
 			var dy = rad *  Math.cos(theta_n + Math.PI/2);
@@ -143,8 +143,14 @@ function angle_concave_normal_theta(theta_a, theta_c) {
 	}
 }
 
-function angle_average_theta(theta_a, theta_c) {
-	return mod((theta_a + theta_c) / 2.0, 2.0*Math.PI);
+function angle_same_direction_theta(theta_a, theta_c) {
+	var normal = mod((theta_a + theta_c) / 2.0, 2.0*Math.PI);
+	var angle_a_normal = mod((normal - theta_a), 2.0*Math.PI);
+	if (angle_a_normal < Math.PI) {
+		return mod(normal + Math.PI, 2.0*Math.PI);
+	} else {
+		return normal;
+	}
 }
 
 function angle_btn(a, b) {
