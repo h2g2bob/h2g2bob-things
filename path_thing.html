@@ -28,8 +28,8 @@ window.addEventListener("load", function(event) {
 	});
 });
 function draw(){
-	draw_lines(document.getElementById("path1"));
-	draw_normals(document.getElementById("path2"));
+	// draw_lines(document.getElementById("path1"));
+	// draw_normals(document.getElementById("path2"));
 	draw_bezier(document.getElementById("path3"));
 }
 
@@ -105,14 +105,12 @@ function draw_bezier(elem) {
 			var dx = rad *  Math.sin(theta_n + Math.PI/2);
 			var dy = rad *  Math.cos(theta_n + Math.PI/2);
 			path_str.push((g_coords[i].x + dx) + "," + (g_coords[i].y + dy));
-			debug_point((g_coords[i].x + dx), (g_coords[i].y + dy), "#ff0000");
 
 			path_str.push(g_coords[i].x + "," + g_coords[i].y);
 
 			var dx = rad *  Math.sin(theta_n - Math.PI/2);
 			var dy = rad *  Math.cos(theta_n - Math.PI/2);
 			path_str.push("C " + (g_coords[i].x + dx) + "," + (g_coords[i].y + dy));
-			debug_point((g_coords[i].x + dx), (g_coords[i].y + dy), "#00ff00");
 		}
 	}
 	elem.setAttribute("d", path_str.join(" "));
